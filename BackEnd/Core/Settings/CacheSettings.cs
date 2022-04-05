@@ -1,7 +1,6 @@
-﻿namespace Core.Settings
+﻿namespace Core.Settings;
+
+public class CacheSettings
 {
-    public class CacheSettings
-    {
-        public int SlidingExpiration { get; set; }
-    }
+    public int SlidingExpiration { get; set; }
 }

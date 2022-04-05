@@ -9,41 +9,40 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Core.Behaviors
+namespace Core.Behaviors;
+
+public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : ICacheableQuery, IRequest<TResponse>
 {
-    public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : ICacheableQuery
+    private readonly IDistributedCache cache;
+    private readonly ILogger<TResponse> logger;
+    private readonly CacheSettings cacheSettings;
+
+    public CachingBehavior(IDistributedCache cache, ILogger<TResponse> logger, IOptionsSnapshot<CacheSettings> cacheSettings)
     {
-        private readonly IDistributedCache cache;
-        private readonly ILogger<TResponse> logger;
-        private readonly CacheSettings cacheSettings;
+        this.cache = cache;
+        this.logger = logger;
+        this.cacheSettings = cacheSettings.Value;
+    }
 
-        public CachingBehavior(IDistributedCache cache, ILogger<TResponse> logger, IOptionsSnapshot<CacheSettings> cacheSettings)
+    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    {
+        if (request.BypassCache)
         {
-            this.cache = cache;
-            this.logger = logger;
-            this.cacheSettings = cacheSettings.Value;
+            return await next();
         }
-
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        TResponse response;
+        byte[] cachedResponse = await cache.GetAsync(request.Cachekey, cancellationToken);
+        if (cachedResponse != null)
         {
-            if (request.BypassCache)
-            {
-                return await next();
-            }
-            TResponse response;
-            byte[] cachedResponse = await cache.GetAsync(request.Cachekey, cancellationToken);
-            if (cachedResponse != null)
-            {
-                response = JsonSerializer.Deserialize<TResponse>(cachedResponse);
-                logger.LogInformation($"Retrieved value from cache with key {request.Cachekey}");
-                return response;
-            }
-            response = await next();
-            TimeSpan slidingExpiration = request.SlidingExpiration ?? TimeSpan.FromSeconds(cacheSettings.SlidingExpiration);
-            DistributedCacheEntryOptions cacheOptions = new() { SlidingExpiration = slidingExpiration };
-            await cache.SetAsync(request.Cachekey, JsonSerializer.SerializeToUtf8Bytes(response), cacheOptions, cancellationToken);
-            logger.LogInformation($"Set value to cache with key {request.Cachekey}");
+            response = JsonSerializer.Deserialize<TResponse>(cachedResponse);
+            logger.LogInformation("Retrieved value from cache with key {cachekey}", request.Cachekey);
             return response;
         }
+        response = await next();
+        TimeSpan slidingExpiration = request.SlidingExpiration ?? TimeSpan.FromSeconds(cacheSettings.SlidingExpiration);
+        DistributedCacheEntryOptions cacheOptions = new() { SlidingExpiration = slidingExpiration };
+        await cache.SetAsync(request.Cachekey, JsonSerializer.SerializeToUtf8Bytes(response), cacheOptions, cancellationToken);
+        logger.LogInformation("Set value to cache with key {cachekey}", request.Cachekey);
+        return response;
     }
 }

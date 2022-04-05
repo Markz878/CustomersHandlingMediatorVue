@@ -2,13 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace API.Installers
+namespace API.Installers;
+
+public class CoreServicesInstaller : IInstaller
 {
-    public class CoreServicesInstaller : IInstaller
+    public void Install(IServiceCollection services, IConfiguration configuration)
     {
-        public void Install(IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddCoreLayer();
-        }
+        services.AddCoreLayer();
     }
 }

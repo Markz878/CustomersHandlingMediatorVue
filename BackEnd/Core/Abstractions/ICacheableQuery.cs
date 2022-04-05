@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace Core.Abstractions
+namespace Core.Abstractions;
+
+public interface ICacheableQuery
 {
-    public interface ICacheableQuery
-    {
-        public bool BypassCache { get; }
-        public string Cachekey { get; }
-        public TimeSpan? SlidingExpiration { get; }
-    }
+    public bool BypassCache { get; }
+    public string Cachekey { get; }
+    public TimeSpan? SlidingExpiration { get; }
 }

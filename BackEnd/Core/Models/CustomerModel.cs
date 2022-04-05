@@ -1,9 +1,8 @@
 ﻿using Core.Models;
 
-namespace Core.Abstractions
+namespace Core.Abstractions;
+
+public class CustomerModel : AddCustomerRequest
 {
-    public class CustomerModel : AddCustomerRequest
-    {
-        public int Id { get; set; }
-    }
+    public int Id { get; set; }
 }
