@@ -25,6 +25,6 @@ internal class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, Custo
 
     public Task<CustomerModel> Handle(GetCustomerQuery request, CancellationToken cancellationToken)
     {
-        return customerRepository.GetCustomerById(request.Id);
+        return customerRepository.GetCustomerById(request.Id, cancellationToken);
     }
 }

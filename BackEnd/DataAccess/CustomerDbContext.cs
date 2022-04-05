@@ -26,7 +26,7 @@ public class CustomerDbContext : DbContext
         {
             return;
         }
-        var customerFaker = new Faker<CustomerModel>()
+        Faker<CustomerModel> customerFaker = new Faker<CustomerModel>()
             .RuleFor(x => x.Id, 0)
             .RuleFor(x => x.FirstName, x => x.Person.FirstName)
             .RuleFor(x => x.LastName, x => x.Person.LastName)

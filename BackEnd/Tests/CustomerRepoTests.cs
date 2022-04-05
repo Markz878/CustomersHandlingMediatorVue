@@ -19,10 +19,10 @@ public class CustomerRepoTests
     public async Task GetCustomers(GetCustomerListQuery getCustomersQuery, List<CustomerModel> customers)
     {
         ICustomerRepository customerRepo = Substitute.For<ICustomerRepository>();
-        customerRepo.GetCustomers().Returns(customers);
+        customerRepo.GetCustomers(CancellationToken.None).Returns(customers);
         GetCustomerListQueryHandler getCustomerListQueryHandler = new(customerRepo);
         IEnumerable<CustomerModel> customerListResponse = await getCustomerListQueryHandler.Handle(getCustomersQuery, CancellationToken.None);
-        await customerRepo.Received().GetCustomers();
+        await customerRepo.Received().GetCustomers(CancellationToken.None);
         customerListResponse.Should().BeEquivalentTo(customers);
     }
 
@@ -30,10 +30,10 @@ public class CustomerRepoTests
     public async Task GetCustomerById(GetCustomerQuery getCustomerQuery, CustomerModel customer)
     {
         ICustomerRepository customerRepo = Substitute.For<ICustomerRepository>();
-        customerRepo.GetCustomerById(getCustomerQuery.Id).Returns(customer);
+        customerRepo.GetCustomerById(getCustomerQuery.Id, CancellationToken.None).Returns(customer);
         GetCustomerQueryHandler getCustomerQueryHandler = new(customerRepo);
         CustomerModel customerResponse = await getCustomerQueryHandler.Handle(getCustomerQuery, CancellationToken.None);
-        await customerRepo.Received().GetCustomerById(Arg.Is<int>(x=>x==getCustomerQuery.Id));
+        await customerRepo.Received().GetCustomerById(Arg.Is<int>(x => x == getCustomerQuery.Id), CancellationToken.None);
         customerResponse.Should().BeEquivalentTo(customer);
     }
 
@@ -43,11 +43,11 @@ public class CustomerRepoTests
         IMediator mediator = Substitute.For<IMediator>();
         mediator.Publish(Arg.Any<CustomerListChangedNotification>(), CancellationToken.None).Returns(Task.CompletedTask);
         ICustomerRepository customerRepo = Substitute.For<ICustomerRepository>();
-        customerRepo.AddCustomer(addCustomerCommand.CustomerRequest).Returns(1);
+        customerRepo.AddCustomer(addCustomerCommand.CustomerRequest, CancellationToken.None).Returns(1);
         AddCustomerCommandHandler addCustomerCommandHandler = new(customerRepo, mediator);
         int customerId = await addCustomerCommandHandler.Handle(addCustomerCommand, CancellationToken.None);
         await mediator.Received().Publish(Arg.Any<CustomerListChangedNotification>(), CancellationToken.None);
-        await customerRepo.Received().AddCustomer(addCustomerCommand.CustomerRequest);
+        await customerRepo.Received().AddCustomer(addCustomerCommand.CustomerRequest, CancellationToken.None);
         Assert.Equal(1, customerId);
     }
 
@@ -57,11 +57,11 @@ public class CustomerRepoTests
         IMediator mediator = Substitute.For<IMediator>();
         mediator.Publish(Arg.Any<CustomerListChangedNotification>(), CancellationToken.None).Returns(Task.CompletedTask);
         ICustomerRepository customerRepo = Substitute.For<ICustomerRepository>();
-        customerRepo.DeleteCustomer(deleteCustomerCommand.CustomerId).Returns(true);
+        customerRepo.DeleteCustomer(deleteCustomerCommand.CustomerId, CancellationToken.None).Returns(true);
         DeleteCustomerCommandHandler deleteCustomerCommandHandler = new(customerRepo, mediator);
         bool success = await deleteCustomerCommandHandler.Handle(deleteCustomerCommand, CancellationToken.None);
         await mediator.Received().Publish(Arg.Any<CustomerListChangedNotification>(), CancellationToken.None);
-        await customerRepo.Received().DeleteCustomer(deleteCustomerCommand.CustomerId);
+        await customerRepo.Received().DeleteCustomer(deleteCustomerCommand.CustomerId, CancellationToken.None);
         success.Should().BeTrue();
     }
 
@@ -71,11 +71,11 @@ public class CustomerRepoTests
         IMediator mediator = Substitute.For<IMediator>();
         mediator.Publish(Arg.Any<CustomerListChangedNotification>(), CancellationToken.None).Returns(Task.CompletedTask);
         ICustomerRepository customerRepo = Substitute.For<ICustomerRepository>();
-        customerRepo.UpdateCustomer(updateCustomerCommand.CustomerRequest).Returns(true);
+        customerRepo.UpdateCustomer(updateCustomerCommand.CustomerRequest, CancellationToken.None).Returns(true);
         UpdateCustomerCommandHandler updateCustomerCommandHandler = new(customerRepo, mediator);
         bool success = await updateCustomerCommandHandler.Handle(updateCustomerCommand, CancellationToken.None);
-        await mediator.Received().Publish(Arg.Is<CustomerListChangedNotification>(x=>x.CustomerId == updateCustomerCommand.CustomerRequest.Id), CancellationToken.None);
-        await customerRepo.Received().UpdateCustomer(updateCustomerCommand.CustomerRequest);
+        await mediator.Received().Publish(Arg.Is<CustomerListChangedNotification>(x => x.CustomerId == updateCustomerCommand.CustomerRequest.Id), CancellationToken.None);
+        await customerRepo.Received().UpdateCustomer(updateCustomerCommand.CustomerRequest, CancellationToken.None);
         success.Should().BeTrue();
     }
 }

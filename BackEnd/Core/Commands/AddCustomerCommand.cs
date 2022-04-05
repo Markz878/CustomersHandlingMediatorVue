@@ -31,6 +31,6 @@ internal class AddCustomerCommandHandler : IRequestHandler<AddCustomerCommand, i
     public async Task<int> Handle(AddCustomerCommand request, CancellationToken cancellationToken)
     {
         await mediator.Publish(new CustomerListChangedNotification(null), cancellationToken);
-        return await customerRepository.AddCustomer(request.CustomerRequest);
+        return await customerRepository.AddCustomer(request.CustomerRequest, cancellationToken);
     }
 }

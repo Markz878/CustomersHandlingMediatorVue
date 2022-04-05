@@ -29,7 +29,7 @@ internal class DeleteCustomerCommandHandler : IRequestHandler<DeleteCustomerComm
 
     public async Task<bool> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
     {
-        bool success = await customerRepository.DeleteCustomer(request.CustomerId);
+        bool success = await customerRepository.DeleteCustomer(request.CustomerId, cancellationToken);
         if (success)
         {
             await mediator.Publish(new CustomerListChangedNotification(request.CustomerId), cancellationToken);

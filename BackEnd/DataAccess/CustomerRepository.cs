@@ -24,13 +24,13 @@ public class CustomerRepository : ICustomerRepository
 
     public async Task<CustomerModel> GetCustomerById(int id, CancellationToken cancellationToken)
     {
-        var result = await customerDb.Customers.FindAsync(new object[] { id }, cancellationToken: cancellationToken);
+        CustomerModel result = await customerDb.Customers.FindAsync(new object[] { id }, cancellationToken: cancellationToken);
         return result;
     }
 
     public async Task<IEnumerable<CustomerModel>> GetCustomers(CancellationToken cancellationToken)
     {
-        var result = await customerDb.Customers.AsNoTracking().ToListAsync(cancellationToken);
+        List<CustomerModel> result = await customerDb.Customers.AsNoTracking().ToListAsync(cancellationToken);
         return result;
     }
 
