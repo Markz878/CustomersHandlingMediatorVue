@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
-
-namespace API.Installers;
+﻿namespace API.Installers;
 
 public static class InstallerExtension
 {

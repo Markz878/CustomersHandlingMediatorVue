@@ -1,9 +1,4 @@
-﻿using Core.Behaviors;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-
-namespace Core.ServiceCollectionExtensions;
+﻿namespace Core.ServiceCollectionExtensions;
 
 public static class ServiceCollectionExtensions
 {

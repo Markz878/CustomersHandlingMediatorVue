@@ -1,15 +1,4 @@
-﻿using Core.Abstractions;
-using Core.Settings;
-using MediatR;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Core.Behaviors;
+﻿namespace Core.Behaviors;
 
 public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : ICacheableQuery, IRequest<TResponse>
 {
@@ -30,16 +19,16 @@ public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         {
             return await next();
         }
-        TResponse response;
+        TResponse? response;
         byte[] cachedResponse = await cache.GetAsync(request.Cachekey, cancellationToken);
         if (cachedResponse != null)
         {
             response = JsonSerializer.Deserialize<TResponse>(cachedResponse);
             logger.LogInformation("Retrieved value from cache with key {cachekey}", request.Cachekey);
-            return response;
+            return response ?? throw new ArgumentNullException("Cache value");
         }
         response = await next();
-        TimeSpan slidingExpiration = request.SlidingExpiration ?? TimeSpan.FromSeconds(cacheSettings.SlidingExpiration);
+        TimeSpan slidingExpiration = request.SlidingExpiration ?? TimeSpan.FromSeconds(cacheSettings.SlidingExpirationSeconds);
         DistributedCacheEntryOptions cacheOptions = new() { SlidingExpiration = slidingExpiration };
         await cache.SetAsync(request.Cachekey, JsonSerializer.SerializeToUtf8Bytes(response), cacheOptions, cancellationToken);
         logger.LogInformation("Set value to cache with key {cachekey}", request.Cachekey);

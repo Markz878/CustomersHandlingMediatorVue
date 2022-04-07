@@ -1,10 +1,4 @@
 using API.Installers;
-using Core.Settings;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 
 namespace API;
@@ -21,7 +15,6 @@ public class Startup
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-        services.Configure<CacheSettings>(Configuration.GetSection(nameof(CacheSettings)));
         services.InstallServices(Configuration);
         services.AddSpaStaticFiles(options => options.RootPath = "wwwroot");
         services.AddControllers();

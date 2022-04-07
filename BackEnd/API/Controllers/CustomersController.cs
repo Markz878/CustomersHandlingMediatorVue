@@ -1,11 +1,7 @@
-﻿using Core.Abstractions;
-using Core.Commands;
-using Core.Models;
-using Core.Queries;
+﻿using Core.Handlers.Customer;
+using Core.Models.Customer;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace API.Controllers;
 
@@ -20,49 +16,48 @@ public class CustomersController : ControllerBase
         this.mediator = mediator;
     }
 
-    [HttpGet("{id:int}")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
-    public async Task<IActionResult> GetCustomer(int id)
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerBL))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+    public async Task<IActionResult> GetCustomer(Guid id)
     {
-        CustomerModel customer = await mediator.Send(new GetCustomerQuery() { Id = id });
+        CustomerBL? customer = await mediator.Send(new GetCustomerQuery(id));
         return customer != null ? Ok(customer) : NotFound("Could not find customer.");
     }
 
     [HttpGet]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerBL>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     public async Task<IActionResult> GetCustomerList()
     {
-        IEnumerable<CustomerModel> customers = await mediator.Send(new GetCustomerListQuery());
+        IEnumerable<CustomerBL> customers = await mediator.Send(new GetCustomerListQuery());
         return customers != null ? Ok(customers) : NotFound("Could not load customers.");
     }
 
     [HttpPost]
-    [ProducesResponseType(201)]
-    [ProducesResponseType(400)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     public async Task<IActionResult> AddCustomer(AddCustomerRequest customerRequest)
     {
-        int id = await mediator.Send(new AddCustomerCommand(customerRequest));
-        return id > 0 ? Created($"{Request.Scheme}://{Request.Host}{Request.Path}/{id}", null) : BadRequest("Could not add customer.");
+        Guid id = await mediator.Send(new AddCustomerCommand(customerRequest));
+        return id != Guid.Empty ? Created($"{Request.Scheme}://{Request.Host}{Request.Path}/{id}", null) : BadRequest("Could not add customer.");
     }
 
     [HttpPut]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    public async Task<IActionResult> UpdateCustomer(CustomerModel updateCustomerRequest)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    public async Task<IActionResult> UpdateCustomer(CustomerBL updateCustomerRequest)
     {
         bool success = await mediator.Send(new UpdateCustomerCommand(updateCustomerRequest));
-        return success ? Ok() : BadRequest("Could not update customer.");
-
+        return success ? NoContent() : BadRequest("Could not update customer.");
     }
 
     [HttpDelete]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
-    public async Task<IActionResult> RemoveCustomer(int id)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+    public async Task<IActionResult> RemoveCustomer(Guid id)
     {
         bool success = await mediator.Send(new DeleteCustomerCommand(id));
-        return success ? Ok() : NotFound("Could not find customer");
+        return success ? NoContent() : NotFound("Could not find customer");
     }
 }

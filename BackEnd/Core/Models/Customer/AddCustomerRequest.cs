@@ -1,7 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Core.Models;
-
+﻿namespace Core.Models.Customer;
+#nullable disable
 public class AddCustomerRequest
 {
     [Required]

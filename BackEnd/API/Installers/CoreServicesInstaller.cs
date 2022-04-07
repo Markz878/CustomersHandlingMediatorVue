@@ -1,6 +1,4 @@
 ﻿using Core.ServiceCollectionExtensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace API.Installers;
 

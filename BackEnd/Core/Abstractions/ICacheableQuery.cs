@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Core.Abstractions;
+﻿namespace Core.Abstractions;
 
 public interface ICacheableQuery
 {

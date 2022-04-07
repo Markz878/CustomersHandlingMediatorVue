@@ -1,9 +1,4 @@
-using DataAccess;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
+using Core.Data;
 
 namespace API;
 
@@ -24,7 +19,7 @@ public class Program
         IServiceProvider services = scope.ServiceProvider;
         try
         {
-            CustomerDbContext db = services.GetRequiredService<CustomerDbContext>();
+            AppDbContext db = services.GetRequiredService<AppDbContext>();
             db.SeedData();
         }
         catch (Exception ex)

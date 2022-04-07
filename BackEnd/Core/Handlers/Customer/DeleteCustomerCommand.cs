@@ -1,16 +1,9 @@
-﻿using Core.Abstractions;
-using Core.Notifications;
-using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Core.Commands;
+﻿namespace Core.Handlers.Customer;
 
 public class DeleteCustomerCommand : IRequest<bool>
 {
-    public int CustomerId { get; }
-
-    public DeleteCustomerCommand(int id)
+    public Guid CustomerId { get; }
+    public DeleteCustomerCommand(Guid id)
     {
         CustomerId = id;
     }
@@ -18,18 +11,21 @@ public class DeleteCustomerCommand : IRequest<bool>
 
 internal class DeleteCustomerCommandHandler : IRequestHandler<DeleteCustomerCommand, bool>
 {
-    private readonly ICustomerRepository customerRepository;
+    private readonly AppDbContext db;
     private readonly IMediator mediator;
 
-    public DeleteCustomerCommandHandler(ICustomerRepository customerRepository, IMediator mediator)
+    public DeleteCustomerCommandHandler(AppDbContext db, IMediator mediator)
     {
-        this.customerRepository = customerRepository;
+        this.db = db;
         this.mediator = mediator;
     }
 
     public async Task<bool> Handle(DeleteCustomerCommand request, CancellationToken cancellationToken)
     {
-        bool success = await customerRepository.DeleteCustomer(request.CustomerId, cancellationToken);
+        CustomerDb customer = new() { Id = request.CustomerId };
+        db.Customers.Remove(customer);
+        int rows = await db.SaveChangesAsync(cancellationToken);
+        bool success = rows > 0;
         if (success)
         {
             await mediator.Publish(new CustomerListChangedNotification(request.CustomerId), cancellationToken);
