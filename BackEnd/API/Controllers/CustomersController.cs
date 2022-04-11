@@ -1,4 +1,5 @@
-﻿using Core.Handlers.Customer;
+﻿using Core.Features.Customer;
+using Core.Handlers.Customer;
 using Core.Models.Customer;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,20 +18,29 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerBL))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerWithourOrdersDto))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     public async Task<IActionResult> GetCustomer(Guid id)
     {
-        CustomerBL? customer = await mediator.Send(new GetCustomerQuery(id));
+        CustomerWithourOrdersDto? customer = await mediator.Send(new GetCustomerQuery(id));
+        return customer != null ? Ok(customer) : NotFound("Could not find customer.");
+    }
+
+    [HttpGet("with-orders/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerBL))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+    public async Task<IActionResult> GetCustomerWithOrders(Guid id, bool splitQuery)
+    {
+        CustomerBL? customer = await mediator.Send(new GetCustomerWithOrdersQuery(id, splitQuery));
         return customer != null ? Ok(customer) : NotFound("Could not find customer.");
     }
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerBL>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerWithourOrdersDto>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
     public async Task<IActionResult> GetCustomerList()
     {
-        IEnumerable<CustomerBL> customers = await mediator.Send(new GetCustomerListQuery());
+        IEnumerable<CustomerWithourOrdersDto> customers = await mediator.Send(new GetCustomerListQuery());
         return customers != null ? Ok(customers) : NotFound("Could not load customers.");
     }
 

@@ -6,5 +6,5 @@ public class OrderBL
     public Guid CustomerId { get; set; }
     public DateTime OrderPlacedTime { get; set; }
     public OrderState OrderState { get; set; }
-    public ICollection<OrderItemBL> Items { get; set; } = new List<OrderItemBL>();
+    public List<OrderItemBL> Items { get; set; } = new List<OrderItemBL>();
 }

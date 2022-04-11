@@ -1,13 +1,13 @@
 ﻿namespace Core.Handlers.Customer;
 
-public class GetCustomerListQuery : IRequest<IEnumerable<CustomerBL>>, ICacheableQuery
+public class GetCustomerListQuery : IRequest<IEnumerable<CustomerWithourOrdersDto>>, ICacheableQuery
 {
     public bool BypassCache { get; init; }
     public string Cachekey => "customer-list";
     public TimeSpan? SlidingExpiration { get; init; }
 }
 
-internal class GetCustomerListQueryHandler : IRequestHandler<GetCustomerListQuery, IEnumerable<CustomerBL>>
+internal class GetCustomerListQueryHandler : IRequestHandler<GetCustomerListQuery, IEnumerable<CustomerWithourOrdersDto>>
 {
     private readonly AppDbContext db;
 
@@ -16,10 +16,10 @@ internal class GetCustomerListQueryHandler : IRequestHandler<GetCustomerListQuer
         this.db = db;
     }
 
-    public async Task<IEnumerable<CustomerBL>> Handle(GetCustomerListQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<CustomerWithourOrdersDto>> Handle(GetCustomerListQuery request, CancellationToken cancellationToken)
     {
         List<CustomerDb> customerDbs = await db.Customers.AsNoTracking().ToListAsync(cancellationToken);
-        List<CustomerBL> customerBLs = customerDbs.Adapt<List<CustomerBL>>();
+        List<CustomerWithourOrdersDto> customerBLs = customerDbs.Adapt<List<CustomerWithourOrdersDto>>();
         return customerBLs;
     }
 }

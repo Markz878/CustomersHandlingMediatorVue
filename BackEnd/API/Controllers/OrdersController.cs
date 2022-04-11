@@ -36,7 +36,7 @@ public class OrdersController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     public async Task<IActionResult> AddOrder(CreateOrderRequest orderRequest)
     {
         Guid id = await mediator.Send(new CreateOrderCommand(orderRequest));
@@ -45,12 +45,29 @@ public class OrdersController : ControllerBase
 
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
     public async Task<IActionResult> UpdateOrder(OrderBL updateOrderRequest)
     {
         bool success = await mediator.Send(new UpdateOrderCommand(updateOrderRequest));
         return success ? NoContent() : BadRequest("Could not update order.");
+    }
 
+    [HttpPost("submit/{orderId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(string))]
+    public async Task<IActionResult> SubmitOrder(Guid orderId)
+    {
+        SubmitOrderResponse response = await mediator.Send(new SubmitOrderCommand(orderId));
+        return response switch
+        {
+            SubmitOrderResponse.Success => NoContent(),
+            SubmitOrderResponse.NotFound => NotFound("Could not find order."),
+            SubmitOrderResponse.OrderAlreadySubmitted => Conflict("Order already submitted"),
+            SubmitOrderResponse.CreditExceeded => BadRequest("Customer credit exceeded."),
+            _ => throw new NotImplementedException()
+        };
     }
 
     [HttpDelete]

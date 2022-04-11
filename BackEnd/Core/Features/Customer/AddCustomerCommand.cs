@@ -1,4 +1,4 @@
-﻿namespace Core.Handlers.Customer;
+﻿namespace Core.Features.Customer;
 
 public class AddCustomerCommand : IRequest<Guid>
 {

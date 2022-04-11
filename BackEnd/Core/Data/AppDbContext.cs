@@ -33,7 +33,7 @@ public class AppDbContext : DbContext
             .RuleFor(x => x.Phone, f => f.Phone.PhoneNumber())
             .RuleFor(x => x.Email, f => f.Person.Email);
         Faker<OrderDb> orderFaker = new Faker<OrderDb>()
-            .RuleFor(x => x.State, OrderState.Ordered)
+            .RuleFor(x => x.State, OrderState.Draft)
             .RuleFor(x => x.OrderPlacedTime, f => f.Date.Past());
         Faker<OrderItemDb> itemFaker = new Faker<OrderItemDb>()
             .RuleFor(x => x.Name, f => f.Commerce.Product())

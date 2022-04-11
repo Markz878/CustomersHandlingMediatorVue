@@ -5,6 +5,7 @@ global using Core.Data.Models;
 global using Core.Models.Customer;
 global using Core.Models.Order;
 global using Core.Notifications;
+global using Core.Services;
 global using Core.Settings;
 global using Mapster;
 global using MediatR;
@@ -16,3 +17,4 @@ global using Microsoft.Extensions.Options;
 global using System.ComponentModel.DataAnnotations;
 global using System.Reflection;
 global using System.Text.Json;
+
