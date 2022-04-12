@@ -3,7 +3,6 @@
 public class DeleteOrderCommand : IRequest<bool>
 {
     public Guid OrderId { get; }
-
     public DeleteOrderCommand(Guid id)
     {
         OrderId = id;

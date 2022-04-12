@@ -1,6 +1,5 @@
-﻿using Core.Services;
+﻿namespace Core.Handlers.Order;
 
-namespace Core.Handlers.Order;
 public class SubmitOrderCommand : IRequest<SubmitOrderResponse>
 {
     public Guid OrderId { get; }
@@ -50,6 +49,6 @@ internal class SubmitOrderCommandHandler : IRequestHandler<SubmitOrderCommand, S
         order.State = OrderState.Ordered;
         await db.SaveChangesAsync(cancellationToken);
         await mediator.Publish(new OrderSubmittedNotification(order), cancellationToken);
-        return new SubmitOrderResponse();
+        return SubmitOrderResponse.Success;
     }
 }

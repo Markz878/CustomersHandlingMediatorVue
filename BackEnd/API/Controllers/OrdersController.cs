@@ -19,18 +19,18 @@ public class OrdersController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderBL))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-    public async Task<IActionResult> GetOrders(Guid id)
+    public async Task<IActionResult> GetOrders(Guid id, CancellationToken cancellationToken)
     {
-        OrderBL? order = await mediator.Send(new GetOrderQuery() { OrderId = id });
+        OrderBL? order = await mediator.Send(new GetOrderQuery() { OrderId = id }, cancellationToken);
         return order is null ? NotFound() : Ok(order);
     }
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderBL>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-    public async Task<IActionResult> GetCustomerOrders(Guid customerId)
+    public async Task<IActionResult> GetCustomerOrders(Guid customerId, CancellationToken cancellationToken)
     {
-        IEnumerable<OrderBL> orders = await mediator.Send(new GetOrdersForCustomerQuery() { CustomerId = customerId });
+        IEnumerable<OrderBL> orders = await mediator.Send(new GetOrdersForCustomerQuery() { CustomerId = customerId }, cancellationToken);
         return Ok(orders);
     }
 

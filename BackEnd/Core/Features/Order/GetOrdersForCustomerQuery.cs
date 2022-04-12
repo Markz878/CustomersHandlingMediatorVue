@@ -3,11 +3,8 @@
 public class GetOrdersForCustomerQuery : IRequest<IEnumerable<OrderBL>>, ICacheableQuery
 {
     public Guid CustomerId { get; init; }
-
     public bool BypassCache { get; init; }
-
     public string Cachekey => $"orders-for-{CustomerId}";
-
     public TimeSpan? SlidingExpiration { get; init; }
 }
 

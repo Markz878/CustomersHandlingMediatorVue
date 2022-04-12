@@ -3,7 +3,6 @@
 public class CreateOrderCommand : IRequest<Guid>
 {
     public CreateOrderRequest OrderRequest { get; }
-
     public CreateOrderCommand(CreateOrderRequest orderRequest)
     {
         OrderRequest = orderRequest;
